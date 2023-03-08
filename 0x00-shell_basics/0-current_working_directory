@@ -1,4 +1,2 @@
 #!/bin/bash
-current_dir=$(pwd)
-echo $current_dir
-exit 0
+echo $(pwd)
