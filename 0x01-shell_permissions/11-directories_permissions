@@ -1,9 +1,2 @@
 #!/bin/bash
-
-# Find all directories in the current directory and its subdirectories
-directories=$(find . -type d)
-
-# Loop through the directories and add execute permission for all users
-for directory in $directories; do
-  chmod a+x $directory
-done
+find . -type d -exec chmod 755 {} \;
