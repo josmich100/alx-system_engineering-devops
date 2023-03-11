@@ -1,4 +1,2 @@
 #!/bin/bash
-if [ $(id -u) = $(id -u guillaume) ] && [ -O hello ]; then
-    chown betty hello
-fi
+chown --from=guillaume betty hello
