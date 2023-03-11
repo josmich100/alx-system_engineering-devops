@@ -1,2 +1,2 @@
 #!/bin/bash
-ls -1A | sed ':a;N;$!ba;s/\n/, /g;s/\([^0-9a-zA-Z/.]\)/\\\1/g' | sed 's/\.\//.\/, /g;s/\.\.\//\.\.\/, /g;s/\(.*\/\)$/\1\//' | tr -d '\n'
+ls -ap1 | awk 'BEGIN {FS=OFS=""; c=0} /^[.]{1,2}$/ {print $0","; next} {a[++c]=$0} END {n=asort(a); for (i=1; i<=n; i++) print a[i](substr(a[i], length(a[i]), 1)~/[[:alnum:]]/?"":",")}'
