@@ -1,2 +1,2 @@
 #!/bin/bash
-ls -ap1 | awk 'BEGIN {FS=OFS=""; c=0} /^[.]{1,2}$/ {print $0","; next} {a[++c]=$0} END {n=asort(a); for (i=1; i<=n; i++) print a[i](substr(a[i], length(a[i]), 1)~/[[:alnum:]]/?"":",")}'
+ls -amp | sort -d
