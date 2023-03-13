@@ -1,1 +1,1 @@
-A read me for shell redirections
+shell redirections
