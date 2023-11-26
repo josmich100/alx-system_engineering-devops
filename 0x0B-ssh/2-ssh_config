@@ -2,7 +2,7 @@
 # SSH configuration file
 
 Host *
-    HostName 18.206.197.23
+    HostName 107.23.109.35
     IdentityFile ~/.ssh/school
     PreferredAuthentications publickey
     PasswordAuthentication no
