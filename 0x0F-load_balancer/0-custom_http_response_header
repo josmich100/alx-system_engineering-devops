@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 0-custom_http_response_header
+# Script to configure Nginx with a custom HTTP response header
 
 # Update and upgrade the system
 sudo apt update
@@ -8,39 +8,11 @@ sudo apt upgrade -y
 # Install Nginx
 sudo apt install -y nginx
 
-# Create a backup of the default Nginx configuration
-sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
+# Add custom header configuration to Nginx
+sudo sed -i '/server_name _;/a \        add_header X-Served-By $hostname;' /etc/nginx/sites-available/default
 
-# Configure Nginx with custom header
-sudo tee /etc/nginx/sites-available/default > /dev/null <<EOL
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    server_name _;
-
-    location / {
-        add_header X-Served-By \$hostname;
-        root /var/www/html;
-        index index.html;
-    }
-
-    error_page 404 /404.html;
-    location = /404.html {
-        root /var/www/html;
-        internal;
-    }
-
-    error_page 500 502 503 504 /50x.html;
-    location = /50x.html {
-        root /var/www/html;
-        internal;
-    }
-}
-EOL
-
-# Restart Nginx service
+# Restart Nginx to apply changes
 sudo systemctl restart nginx
 
 # Display completion message
-echo "Nginx configuration completed successfully!"
+echo "Nginx configured with custom HTTP response header successfully!"
