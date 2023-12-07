@@ -22,7 +22,14 @@ get_dns_info() {
     fi
 
     record_type=$(dig $sub_domain.$domain | awk '/ANSWER SECTION/ {getline; print $4}')
+    expected_ip=$(dig $sub_domain.$domain | awk '/ANSWER SECTION/ {getline; print $5}')
+
     echo "The subdomain $sub_domain is a $record_type record and points to $dns_info"
+
+    # Check if the actual IP matches the expected IP
+    if [ "$dns_info" != "$expected_ip" ]; then
+        echo "Warning: The actual IP ($dns_info) does not match the expected IP ($expected_ip)"
+    fi
 }
 
 # If no subdomain is provided, display information for default subdomains
