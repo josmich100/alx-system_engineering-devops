@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # This script displays information about subdomains for a given domain
 
+# Check if the correct number of arguments is provided
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    echo "Usage: $0 <domain> [subdomain]"
+    exit 1
+fi
+
 domain=$1
 subdomain=$2
 
@@ -8,6 +14,13 @@ subdomain=$2
 get_dns_info() {
     sub_domain=$1
     dns_info=$(dig $sub_domain.$domain +short)
+
+    # Check if DNS information is available
+    if [ -z "$dns_info" ]; then
+        echo "Error: No DNS information found for $sub_domain.$domain"
+        exit 1
+    fi
+
     record_type=$(dig $sub_domain.$domain | awk '/ANSWER SECTION/ {getline; print $4}')
     echo "The subdomain $sub_domain is a $record_type record and points to $dns_info"
 }
