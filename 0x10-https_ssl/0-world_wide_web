@@ -1,29 +1,24 @@
 #!/usr/bin/env bash
+# This script displays information about subdomains for a given domain
 
-# colors
-blue='\e[1;34m'
-brown='\e[0;33m'
-reset='\033[0m'
+domain=$1
+subdomain=$2
 
-# variables & parameters
-subdomains=( "www" "lb-01" "web-01" "web-02" )
-domain="$1"
-sub="$2"
-
-dig_cmd () {
-	# func variables
-	sub="$2"
-	INFO="$(dig "$sub.$domain" | grep -A1 'ANSWER SECTION:' | awk 'NR==2')"
-	IP=$(echo "$INFO" | awk '{print $5}')
-	RECORD=$(echo "$INFO" | awk '{print $4}')
-
-	echo -e "${brown}The subdomain ${blue}$sub${brown} is a ${blue}$RECORD${brown} record and points to ${blue}$IP${reset}"
+# Function to get DNS information for a subdomain
+get_dns_info() {
+    sub_domain=$1
+    dns_info=$(dig $sub_domain.$domain +short)
+    record_type=$(dig $sub_domain.$domain | awk '/ANSWER SECTION/ {getline; print $4}')
+    echo "The subdomain $sub_domain is a $record_type record and points to $dns_info"
 }
 
-if [ $# -eq 1 ]; then
-	for subs in "${subdomains[@]}"; do
-		dig_cmd "$domain" "$subs"
-	done
-elif [ $# -eq 2 ]; then
-	dig_cmd "$domain" "$sub"
+# If no subdomain is provided, display information for default subdomains
+if [ -z "$subdomain" ]; then
+    get_dns_info www
+    get_dns_info lb-01
+    get_dns_info web-01
+    get_dns_info web-02
+else
+    # Display information for the specified subdomain
+    get_dns_info $subdomain
 fi
