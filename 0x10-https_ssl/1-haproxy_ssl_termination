@@ -1,36 +1,23 @@
-# /etc/haproxy/haproxy.cfg
-
-# Global settings
 global
-    log /dev/log local0
-    log /dev/log local1 notice
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-    stats timeout 30s
-    user haproxy
-    group haproxy
-    daemon
+        log /dev/log    local0
+	stats socket /run/haproxy/admin.sock mode 660 level admin
 
-# Defaults
 defaults
-    log global
-    mode http
-    option httplog
-    option dontlognull
-    timeout connect 5000
-    timeout client 50000
-    timeout server 50000
+        log     global
+        mode    http
+        option  httplog
+	timeout connect  10s
+	timeout client  30s
+	timeout server  30s
 
-# Frontend configuration for SSL termination
-frontend www-https
-    bind *:443 ssl crt /etc/haproxy/certs/www.yourdomain.com.pem
-    reqadd X-Forwarded-Proto:\ https
+frontend th3gr00t-tech-frontend
+	bind *:80
+	bind *:443 ssl crt /etc/haproxy/certs/th3gr00t.tech.pem
+	http-request redirect scheme https unless { ssl_fc }
+	http-request set-header X-Forwarded-Proto https
+	default_backend th3gr00t-tech-backend
 
-    acl is_root path -i /
-    use_backend www-backend if is_root
-
-# Backend configuration
-backend www-backend
-    balance roundrobin
-    server web-01 107.23.109.35:80 check
-    server web-02 3.85.54.206:80 check
+backend th3gr00t-tech-backend
+	balance roundrobin
+	server 453-web-01 35.243.128.200:80 check
+	server 453-web-02 3.239.120.96:80 check
