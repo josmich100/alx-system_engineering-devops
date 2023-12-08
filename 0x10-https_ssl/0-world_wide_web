@@ -1,36 +1,44 @@
 #!/usr/bin/env bash
+# This script displays information about subdomains for a given domain
 
-# Function to display information about a subdomain
-display_info() {
-    domain=$1
-    subdomain=$2
+# Check if the correct number of arguments is provided
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    echo "Usage: $0 <domain> [subdomain]"
+    exit 1
+fi
 
-    # Use dig to get information about the subdomain
-    result=$(dig ${subdomain}.${domain} | grep -A1 'ANSWER SECTION:')
+domain=$1
+subdomain=$2
 
-    # Extract relevant information using awk
-    subdomain_info=$(echo "${result}" | awk '/;; ANSWER SECTION:/ {getline; print}')
+# Function to get DNS information for a subdomain
+get_dns_info() {
+    sub_domain=$1
+    dns_info=$(dig $sub_domain.$domain +short)
 
-    # Extract the record type and destination IP
-    record_type=$(echo "${subdomain_info}" | awk '{print $4}')
-    destination=$(echo "${subdomain_info}" | awk '{print $5}')
+    # Check if DNS information is available
+    if [ -z "$dns_info" ]; then
+        echo "Error: No DNS information found for $sub_domain.$domain"
+        exit 1
+    fi
 
-    # Display the information
-    echo "The subdomain ${subdomain} is a ${record_type} record and points to ${destination}"
+    record_type=$(dig $sub_domain.$domain | awk '/ANSWER SECTION/ {getline; print $4}')
+    expected_ip=$(dig $sub_domain.$domain | awk '/ANSWER SECTION/ {getline; print $5}')
+
+    echo "The subdomain $sub_domain is a $record_type record and points to $dns_info"
+
+    # Check if the actual IP matches the expected IP
+    if [ "$dns_info" != "$expected_ip" ]; then
+        echo "Warning: The actual IP ($dns_info) does not match the expected IP ($expected_ip)"
+    fi
 }
 
-# Main script
-if [ "$#" -eq 1 ]; then
-    # Display information for default subdomains
-    display_info $1 "www"
-    display_info $1 "lb-01"
-    display_info $1 "web-01"
-    display_info $1 "web-02"
-elif [ "$#" -eq 2 ]; then
-    # Display information for the specified subdomain
-    display_info $1 $2
+# If no subdomain is provided, display information for default subdomains
+if [ -z "$subdomain" ]; then
+    get_dns_info www
+    get_dns_info lb-01
+    get_dns_info web-01
+    get_dns_info web-02
 else
-    # Display usage message if incorrect number of arguments
-    echo "Usage: $0 domain [subdomain]"
-    exit 1
+    # Display information for the specified subdomain
+    get_dns_info $subdomain
 fi
