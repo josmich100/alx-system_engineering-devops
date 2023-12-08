@@ -13,7 +13,7 @@ subdomain=$2
 # Function to get DNS information for a subdomain
 get_dns_info() {
     sub_domain=$1
-    dns_info=$(dig "$sub_domain.$domain" +short)
+    dns_info=$(dig $sub_domain.$domain +short)
 
     # Check if DNS information is available
     if [ -z "$dns_info" ]; then
@@ -21,8 +21,8 @@ get_dns_info() {
         exit 1
     fi
 
-    record_type=$(dig "$sub_domain.$domain" | awk '/ANSWER SECTION/ {getline; print $4}')
-    expected_ip=$(dig "$sub_domain.$domain" | awk '/ANSWER SECTION/ {getline; print $1}')
+    record_type=$(dig $sub_domain.$domain | awk '/ANSWER SECTION/ {getline; print $4}')
+    expected_ip=$(dig $sub_domain.$domain | awk '/ANSWER SECTION/ {getline; print $5}')
 
     echo "The subdomain $sub_domain is a $record_type record and points to $dns_info"
 
@@ -31,3 +31,14 @@ get_dns_info() {
         echo "Warning: The actual IP ($dns_info) does not match the expected IP ($expected_ip)"
     fi
 }
+
+# If no subdomain is provided, display information for default subdomains
+if [ -z "$subdomain" ]; then
+    get_dns_info www
+    get_dns_info lb-01
+    get_dns_info web-01
+    get_dns_info web-02
+else
+    # Display information for the specified subdomain
+    get_dns_info $subdomain
+fi
