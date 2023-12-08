@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# This script displays information about subdomains for a given domain
+# this script prints the record type and destination of subdomains
 
 # Check if the correct number of arguments is provided
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
