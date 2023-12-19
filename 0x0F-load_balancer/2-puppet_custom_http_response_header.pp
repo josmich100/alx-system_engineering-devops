@@ -1,31 +1,48 @@
-# 2-puppet_custom_http_response_header.pp
+# Install Nginx package
+include stdlib
 
-# Install Nginx
-class {'nginx':
-  ensure => 'installed',
+$link = 'https://www.youtube.com/watch?v=QH2-TGUlwu4'
+$content = "\trewrite ^/redirect_me/$ ${link} permanent;"
+$custom_header = "add_header X-Served-By \$hostname;"
+
+exec { 'update packages':
+  command => '/usr/bin/apt-get update'
 }
 
-# Custom HTTP header configuration
-file { '/etc/nginx/sites-available/default':
-  ensure  => file,
-  content => template('nginx/default.erb'),
-  notify  => Service['nginx'],
+exec { 'restart nginx':
+  command => '/usr/sbin/service nginx restart',
+  require => Package['nginx']
 }
 
-# Nginx service management
-service {'nginx':
-  ensure => 'running',
-  enable => true,
+package { 'nginx':
+  ensure  => 'installed',
+  require => Exec['update packages']
 }
 
-# Custom HTTP header template
-file { '/etc/nginx/sites-available/default.erb':
-  ensure => file,
-  content => '# Custom HTTP header configuration\nserver {\n    listen 80 default_server;\n    listen [::]:80 default_server;\n\n    server_name _;\n\n    location / {\n        add_header X-Served-By $hostname;\n        root /var/www/html;\n        index index.html;\n    }\n\n    error_page 404 /404.html;\n    location = /404.html {\n        root /var/www/html;\n        internal;\n    }\n\n    error_page 500 502 503 504 /50x.html;\n    location = /50x.html {\n        root /var/www/html;\n        internal;\n    }\n}\n',
+file { '/var/www/html/index.html':
+  ensure  => 'present',
+  content => 'Hello World!',
+  mode    => '0644',
+  owner   => 'root',
+  group   => 'root'
 }
 
-# Notify the custom template change
-notify { 'nginx_custom_header':
-  message => 'Nginx custom header configuration updated.',
-  require => File['/etc/nginx/sites-available/default.erb'],
+file_line { 'Set 301 redirection':
+  ensure   => 'present',
+  after    => 'server_name\ _;',
+  path     => '/etc/nginx/sites-available/default',
+  multiple => true,
+  line     => $content,
+  notify   => Exec['restart nginx'],
+  require  => File['/var/www/html/index.html']
+}
+
+file_line { 'Set X-Served-By header':
+  ensure   => 'present',
+  after    => 'http {',
+  path     => '/etc/nginx/nginx.conf',
+  multiple => true,
+  line     => $custom_header,
+  notify   => Exec['restart nginx'],
+  require  => File['/var/www/html/index.html']
 }

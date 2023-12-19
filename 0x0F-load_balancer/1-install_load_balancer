@@ -1,35 +1,38 @@
 #!/usr/bin/env bash
-# 1-install_load_balancer
+# This script installs and configures an HAProxy load balancer
 
-# Update and upgrade the system
-sudo apt update
-sudo apt upgrade -y
+# Install and configure HAproxy on your lb-01 server.
+# Requirements:
+# Configure HAproxy so that it send traffic to web-01 and web-02
+# Distribute requests using a roundrobin algorithm
+# Make sure that HAproxy can be managed via an init script
+# Make sure that your servers are configured with the right hostnames: 326145-web-01 and 326145-web-02. If not, follow this tutorial.
+# For your answer file, write a Bash script that configures a new Ubuntu machine to respect above requirements
+
+# web-01 100.27.2.172:80
+# web-02 100.25.158.175:80
 
 # Install HAProxy
-sudo apt install -y haproxy
+sudo apt-get update
+sudo apt-get install -y haproxy
 
-# Backup the default HAProxy configuration
-sudo mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
-
-# Configure HAProxy for round-robin load balancing
-sudo tee /etc/haproxy/haproxy.cfg > /dev/null <<EOL
-frontend web_front
+# Configure HAProxy
+sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
+sudo cat <<EOF > /etc/haproxy/haproxy.cfg
+frontend web
     bind *:80
     mode http
-    default_backend web_servers
+    default_backend servers
 
-backend web_servers
+backend servers
     mode http
     balance roundrobin
-    server web_server_1 [STUDENT_ID]-web-01:80 check
-    server web_server_2 [STUDENT_ID]-web-02:80 check
-EOL
+    server web-01 100.27.2.172:80 check
+    server web-02 100.25.158.175:80 check
+EOF
 
-# Enable HAProxy as a service managed by init script
-sudo systemctl enable haproxy
+# Enable HAProxy init script
+sudo sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
 
 # Restart HAProxy service
-sudo systemctl restart haproxy
-
-# Display completion message
-echo "HAProxy installation and configuration completed successfully!"
+sudo service haproxy restart
