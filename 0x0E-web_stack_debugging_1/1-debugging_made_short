@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
-sudo sed -i "s/8080/80/" /etc/nginx/sites-enabled/default
-sudo service nginx restart
-echo "" | sudo dd status=none of=/run/nginx.pid
+# This script automates nginx fix
+ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+pkill -1 nginx
