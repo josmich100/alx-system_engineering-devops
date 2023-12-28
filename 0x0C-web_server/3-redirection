@@ -11,7 +11,7 @@ apt install -y nginx
 ufw allow 'Nginx HTTP'
 
 # set 301 redirect
-sudo sed -i '/listen 80 default_server/a return 301 https://www.youtube.com/;' /etc/nginx/sites-available/default
+sudo sed -i '/listen 80 default_server/a return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;' /etc/nginx/sites-available/default
 
 # test nginx configuration
 nginx -t
