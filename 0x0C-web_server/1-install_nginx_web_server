@@ -1,27 +1,31 @@
 #!/usr/bin/env bash
 # This script installs and configures nginx
 
+# Web servers are the piece of software generating and serving HTML pages, let’s install one!
+
+# Requirements:
+
+# Install nginx on your web-01
+# server
+# Nginx should be listening on port 80
+# When querying Nginx at its root / with a GET request (requesting a page) using curl, it must return a page that contains the string Hello World!
+# As an answer file, write a Bash script that configures a new Ubuntu machine to respect above requirements (this script will be run on the server itself)
+# You can’t use systemctl for restarting nginx
+
 # apt update
 apt-get update
 
 # Install nginx
 apt-get install -y nginx
 
-# Create directories
-mkdir -p /data/web_static/releases/test/
-mkdir -p /data/web_static/shared/
+# allow firewall
+ufw allow 'Nginx HTTP'
 
-# Create fake HTML file
-echo "Holberton School" > /data/web_static/releases/test/index.html
+# listen on port 80
+sed -i 's/80 default_server/80/g' /etc/nginx/sites-available/default
 
-# Create symbolic link
-ln -sf /data/web_static/releases/test/ /data/web_static/current
+# create index.html
+echo "Hello World!" > /var/www/html/index.html
 
-# Give ownership of the /data/ folder to the ubuntu user AND group
-chown -R ubuntu:ubuntu /data/
-
-# Update the Nginx configuration to serve the content of /data/web_static/current/ to hbnb_static
-sed -i "/listen 80 default_server;/a location /hbnb_static/ { alias /data/web_static/current/; }" /etc/nginx/sites-available/default
-
-# Restart nginx
+# restart nginx
 service nginx restart
