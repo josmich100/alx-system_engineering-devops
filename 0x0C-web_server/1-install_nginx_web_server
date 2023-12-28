@@ -1,21 +1,27 @@
 #!/usr/bin/env bash
 # This script installs and configures nginx
 
-# Update package list
-apt update
+# apt update
+apt-get update
 
 # Install nginx
-apt install -y nginx
+apt-get install -y nginx
 
-# allowing nginx on firewall
-ufw allow 'Nginx HTTP'
+# Create directories
+mkdir -p /data/web_static/releases/test/
+mkdir -p /data/web_static/shared/
 
-# Ensure Nginx is listening on port 80
-server_block_path="/etc/nginx/sites-available/default"
-sed -i 's/listen 80 default_server;/listen 80;/g' "$server_block_path"
+# Create fake HTML file
+echo "Holberton School" > /data/web_static/releases/test/index.html
 
-# Create a temporary HTML file containing "Hello World!"
-echo "Hello World!" > /var/www/html/index.html
+# Create symbolic link
+ln -sf /data/web_static/releases/test/ /data/web_static/current
 
-# Restart Nginx
+# Give ownership of the /data/ folder to the ubuntu user AND group
+chown -R ubuntu:ubuntu /data/
+
+# Update the Nginx configuration to serve the content of /data/web_static/current/ to hbnb_static
+sed -i "/listen 80 default_server;/a location /hbnb_static/ { alias /data/web_static/current/; }" /etc/nginx/sites-available/default
+
+# Restart nginx
 service nginx restart
