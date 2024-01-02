@@ -25,7 +25,7 @@ def get_employee_todo_list_progress(employee_id):
         num_completed_tasks = len(completed_tasks)
 
         employee_name = todos[0]['username']
-        print(f"Employee {employee_name} is done with tasks({num_completed_tasks}/{total_tasks}):")
+        print(f"Employee Name: {'' if num_completed_tasks == total_tasks else 'Incorrect'}")
 
         for task in completed_tasks:
             print(f"\t{task['title']}")
