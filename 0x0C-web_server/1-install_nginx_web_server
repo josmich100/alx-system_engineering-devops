@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
 # This script installs and configures nginx
 
-# Update package list
-apt update
+# apt update
+apt-get update
 
 # Install nginx
-apt install -y nginx
+apt-get install -y nginx
 
-# allowing nginx on firewall
+# allow firewall
 ufw allow 'Nginx HTTP'
 
-# Ensure Nginx is listening on port 80
-server_block_path="/etc/nginx/sites-available/default"
-sed -i 's/listen 80 default_server;/listen 80;/g' "$server_block_path"
+# listen on port 80
+sed -i 's/listen 80 default_server/listen 80/' /etc/nginx/sites-available/default
 
-# Create a temporary HTML file containing "Hello World!"
+# create index.html
 echo "Hello World!" > /var/www/html/index.html
 
-# Restart Nginx
+# restart nginx
 service nginx restart

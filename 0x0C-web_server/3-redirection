@@ -10,11 +10,11 @@ apt install -y nginx
 # allowing nginx on firewall
 ufw allow 'Nginx HTTP'
 
-# Redirect
-sudo sed -i '/listen 80 default_server/a rewrite ^/redirect_me https://www.youtube.com/ permanent;' /etc/nginx/sites-available/default
+# set 301 redirect
+sudo sed -i '/listen 80 default_server/a return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;' /etc/nginx/sites-available/default
 
-# Create a temporary HTML file containing "Hello World!"
-echo "Hello World!" > /var/www/html/index.html
+# test nginx configuration
+nginx -t
 
 # Restart Nginx
 service nginx restart
