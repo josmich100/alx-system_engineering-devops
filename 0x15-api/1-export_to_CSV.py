@@ -1,58 +1,20 @@
 #!/usr/bin/python3
 
-"""
-This module retrieves TODO list progress for a given employee ID from a REST API and
-exports it in CSV format
-"""
+"""Export data in the CSV format"""
 
 import csv
 import requests
-import sys
-
-
-def get_employee_todo_list_progress(employee_id):
-    """
-    Retrieve TODO list progress for a given employee ID from a REST API:
-    param employee_id: integer representing the ID of the employee whose progress is to be retrieved
-    """
-    url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos'
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        todos = response.json()
-        total_tasks = len(todos)
-        completed_tasks = [todo for todo in todos if todo['completed']]
-        num_completed_tasks = len(completed_tasks)
-
-        employee_name = todos[0]['username']
-        print(
-            f"Employee {employee_name} is done with tasks({num_completed_tasks}/{total_tasks}):")
-
-        with open(f"{employee_id}.csv", mode='w') as csv_file:
-            fieldnames = ['USER_ID', 'USERNAME',
-                          'TASK_COMPLETED_STATUS', 'TASK_TITLE']
-            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-            writer.writeheader()
-
-            for task in todos:
-                writer.writerow({
-                    'USER_ID': employee_id,
-                    'USERNAME': employee_name,
-                    'TASK_COMPLETED_STATUS': 'YES' if task['completed'] else 'NO',
-                    'TASK_TITLE': task['title']
-                })
-
-            print(
-                f"Exported TODO list progress for employee ID {employee_id} to {employee_id}.csv")
-
-    else:
-        print(
-            f"Error retrieving TODO list progress for employee ID {employee_id}")
+from sys import argv
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2 and sys.argv[1].isdigit():
-        employee_id = int(sys.argv[1])
-        get_employee_todo_list_progress(employee_id)
-    else:
-        print(f"Usage: {sys.argv[0]} employee_id")
+    user_id = argv[1]
+    url = 'https://jsonplaceholder.typicode.com/'
+    user = requests.get(url + 'users/{}'.format(user_id)).json()
+    todo = requests.get(url + 'todos', params={'userId': user_id}).json()
+
+    with open('{}.csv'.format(user_id), 'w') as csvfile:
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+        for task in todo:
+            writer.writerow([user_id, user.get('username'),
+                             task.get('completed'), task.get('title')])

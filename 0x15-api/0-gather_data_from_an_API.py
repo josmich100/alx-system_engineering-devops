@@ -1,42 +1,23 @@
 #!/usr/bin/python3
 
 """
-This module retrieves TODO list progress for a given employee ID from a REST API
+    Python script that, using this REST API, for a given employee ID,
+    returns information about his/her TODO list progress.
 """
 
 import requests
-import sys
-
-
-def get_employee_todo_list_progress(employee_id):
-    """
-    Retrieve TODO list progress for a given employee ID from a REST API:
-    param employee_id: integer representing the ID of the employee whose progress is to be retrieved
-    """
-    url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos'
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        todos = response.json()
-        total_tasks = len(todos)
-        completed_tasks = [todo for todo in todos if todo['completed']]
-        num_completed_tasks = len(completed_tasks)
-
-        employee_name = todos[0]['username']
-        print(
-            f"Employee {employee_name} is done with tasks({num_completed_tasks}/{total_tasks}):")
-
-        for task in completed_tasks:
-            print("\t {} {}".format(task['title'], '\n'))
-
-    else:
-        print(
-            f"Error retrieving TODO list progress for employee ID {employee_id}")
+from sys import argv
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2 and sys.argv[1].isdigit():
-        employee_id = int(sys.argv[1])
-        get_employee_todo_list_progress(employee_id)
-    else:
-        print(f"Usage: {sys.argv[0]} employee_id")
+    user_id = argv[1]
+    url = 'https://jsonplaceholder.typicode.com/'
+    user = requests.get(url + 'users/{}'.format(user_id)).json()
+    todo = requests.get(url + 'todos', params={'userId': user_id}).json()
+    completed_tasks = [task for task in todo if task.get('completed') is True]
+
+    print('Employee {} is done with tasks({}/{}):'.format(
+        user.get('name'), len(completed_tasks), len(todo)))
+
+    for task in completed_tasks:
+        print('\t {}'.format(task.get('title')))
