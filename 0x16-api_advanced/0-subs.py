@@ -8,8 +8,7 @@
 # If not a valid subreddit, return 0.
 # NOTE: Invalid subreddits may return a redirect to search results. Ensure that you are not following redirects.
 
-# File(s): 0-subs.py
-
+#!/usr/bin/python3
 import requests
 
 
