@@ -8,22 +8,18 @@ import requests
 
 def recurse(subreddit, hot_list=[], after=None):
     """Recursively queries the Reddit API and returns a list of titles of all hot articles."""
-    url = f'https://www.reddit.com/r/{subreddit}/hot.json?after={after}'
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-                             '(KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
-    response = requests.get(url, headers=headers,
-                            allow_redirects=False, timeout=10)
-
+    url = "https://www.reddit.com/r/{}/hot.json?after={}".format(subreddit,
+                                                                 after)
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                             'AppleWebKit/537.36 (KHTML, like Gecko) '
+                             'Chrome/81.0.4044.138 Safari/537.36'}
+    response = requests.get(url, headers=headers, allow_redirects=False)
     if response.status_code == 200:
-        data = response.json()
-        posts = data['data']['children']
-        after = data['data']['after']
-        for post in posts:
+        for post in response.json()['data']['children']:
             hot_list.append(post['data']['title'])
-
-        if after is not None:
-            return recurse(subreddit, hot_list, after)
-        else:
+        after = response.json()['data']['after']
+        if after is None:
             return hot_list
+        return recurse(subreddit, hot_list, after)
     else:
         return None
