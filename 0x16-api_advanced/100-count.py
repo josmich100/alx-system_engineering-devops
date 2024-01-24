@@ -7,7 +7,10 @@ import requests
 
 
 def count_words(subreddit, word_list, after=None, counts={}):
-    """Recursively queries the Reddit API, parses titles, and prints a sorted count of keywords."""
+    """
+    Recursively queries the Reddit API, parses titles, and prints 
+    a sorted count of keywords.
+    """
     url = "https://www.reddit.com/r/{}/hot.json?after={}".format(subreddit,
                                                                  after)
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
