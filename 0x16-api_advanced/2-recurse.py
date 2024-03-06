@@ -1,15 +1,14 @@
 #!/usr/bin/python3
 """
-Queries the Reddit API and returns a list containing the titles of all hot
-articles for a given subreddit
+Task 2
 """
 import requests
 
 
 def recurse(subreddit, hot_list=[], after=None):
     """
-    Queries the Reddit API and returns a list containing the titles of all hot
-    articles for a given subreddit
+    Recursively queries the Reddit API and 
+    returns a list of titles of all hot articles.
     """
     url = "https://www.reddit.com/r/{}/hot.json?after={}".format(subreddit,
                                                                  after)

@@ -1,16 +1,15 @@
 #!/usr/bin/python3
 """
-Queries the Reddit API, parses the title of all hot articles, and prints a
-sorted count of given keywords (case-insensitive, delimited by spaces.
+Task 3 (advanced)
 """
+
 import requests
 
 
-def count_words(subreddit, word_list, after=None, word_dict={}):
+def count_words(subreddit, word_list, after=None, counts={}):
     """
-    Queries the Reddit API, parses the title of all hot articles, and prints a
-    sorted count of given keywords (case-insensitive, delimited by spaces.
-    Javascript should count as javascript, but java should not)
+    Recursively queries the Reddit API, parses titles, and prints 
+    a sorted count of keywords.
     """
     url = "https://www.reddit.com/r/{}/hot.json?after={}".format(subreddit,
                                                                  after)
@@ -23,18 +22,18 @@ def count_words(subreddit, word_list, after=None, word_dict={}):
             title = post['data']['title'].lower().split()
             for word in word_list:
                 if word.lower() in title:
-                    if word in word_dict:
-                        word_dict[word] += title.count(word.lower())
+                    if word in counts:
+                        counts[word] += title.count(word.lower())
                     else:
-                        word_dict[word] = title.count(word.lower())
+                        counts[word] = title.count(word.lower())
         after = response.json()['data']['after']
         if after is None:
-            if len(word_dict) == 0:
+            if len(counts) == 0:
                 return
-            for key, value in sorted(word_dict.items(),
+            for key, value in sorted(counts.items(),
                                      key=lambda x: (-x[1], x[0])):
                 print("{}: {}".format(key, value))
             return
-        return count_words(subreddit, word_list, after, word_dict)
+        return count_words(subreddit, word_list, after, counts)
     else:
         return
