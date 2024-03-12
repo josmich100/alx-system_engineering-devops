@@ -9,8 +9,8 @@
 # Make sure that your servers are configured with the right hostnames: 326145-web-01 and 326145-web-02. If not, follow this tutorial.
 # For your answer file, write a Bash script that configures a new Ubuntu machine to respect above requirements
 
-# web-01 100.27.2.172:80
-# web-02 100.25.158.175:80
+# web-01 54.174.150.160:80
+# web-02 100.25.103.236:80
 
 # Install HAProxy
 sudo apt-get update
@@ -27,8 +27,8 @@ frontend web
 backend servers
     mode http
     balance roundrobin
-    server web-01 100.27.2.172:80 check
-    server web-02 100.25.158.175:80 check
+    server web-01 54.174.150.160:80 check
+    server web-02 100.25.103.236:80 check
 EOF
 
 # Enable HAProxy init script
